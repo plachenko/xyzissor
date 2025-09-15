@@ -1,0 +1,11 @@
+html, body{
+  margin:0;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+button {
+  background-color: #F00;
+  border-radius: 5px;
+  padding: 2px;
+}

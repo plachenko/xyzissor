@@ -1,0 +1,42 @@
+@import './reset.css';
+@import './pollen.css';
+@import './components/index.scss';
+@import './functions.scss';
+@import './fonts.scss';
+
+* {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+html {
+	height: 100%;
+	overflow: hidden;
+}
+
+body {
+	background-color: var(--color-gray-12);
+	color: var(--color-gray-0);
+
+	font-family: var(--font-sans);
+
+	user-select: none;
+	overflow: hidden;
+
+	// Ensure the body occupies the full viewport height, ignoring the
+	// mobile browser's address bar and other UI elements.
+	height: calc(100% - env(safe-area-inset-top));
+
+	/* Prevent zoom gestures */
+	touch-action: pan-x pan-y;
+
+	position: relative;
+}
+
+a {
+	color: inherit;
+}
+
+a:hover {
+	opacity: 0.75;
+}
