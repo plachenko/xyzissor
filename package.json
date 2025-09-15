@@ -6,6 +6,8 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"deploy": "gh-pages -d build",
+		"bnd": "npm run build && npm run deploy",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -13,6 +15,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^6.0.0",
+    	"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.22.0",
 		"@sveltejs/vite-plugin-svelte": "^6.0.0",
 		"@tailwindcss/vite": "^4.0.0",
@@ -29,6 +32,7 @@
 		"lightningcss.android-arm64.node": "^1.29.3-1"
 	},
 	"dependencies": {
-		"three": "^0.180.0"
+		"three": "^0.180.0",
+    	"gh-pages": "^6.3.0"
 	}
 }
