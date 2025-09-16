@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import SceneList from '../components/SceneList.svelte';
+	import PointerTracker from '../components/ChatGPT/PointerTracker.svelte';
 
 	let scene = $state(null);
 	const cursorMesh = $state(new THREE.CircleGeometry(0.01));
@@ -16,13 +17,7 @@
 
 	const sceneObj = $state({
 		title: 'untitled',
-		geometry: [
-			{
-				type: 'BoxGeometry',
-				size: new THREE.Vector3(0.2, 0.2, 0.2),
-				pos: new THREE.Vector3(0, 0, 0)
-			}
-		]
+		geometry: []
 	});
 
 	function addObj(type = 'BoxGeometry') {
@@ -46,14 +41,17 @@
 	}
 
 	function remFunc(idx) {
-		console.log(idx);
-		console.log($state.snapshot(sceneObj.geometry));
+		// console.log(idx);
 		// if (!idx) return;
+		let curObj = sceneObj.geometry[idx];
+		console.log(curObj);
+		console.log($state.snapshot(sceneObj.geometry));
+		sceneObj.geometry.splice(idx, 1);
 
-		// scene.remove(e.meshInfo.mesh);
-		// e.meshInfo.geometry.dispose();
-		// e.meshInfo.material.dispose();
-		console.log('reming', idx);
+		scene.remove(curObj.meshInfo.mesh);
+
+		//curObj.meshInfo.geometry.dispose();
+		// curObj.meshInfo.material.dispose();
 	}
 
 	function addFunc() {
@@ -69,11 +67,17 @@
 			pos: new THREE.Vector3(0.2, 0.2, 0.2)
 		};
 
-		_obj.meshInfo = addObj([_obj.type]);
+		// _obj.meshInfo = addObj([_obj.type]);
+		_obj.meshInfo = {
+			geo: geometry,
+			mat: mat,
+			mesh: mesh
+		};
 
 		sceneObj.geometry.push({
 			..._obj
 		});
+		console.log(geometry);
 	}
 
 	const opts = $state([
@@ -188,8 +192,12 @@
 <div class="p-2 absolute w-full h-full pointer-events-none">
 	<!-- Object List -->
 
+	<PointerTracker />
 	<div
 		class={`${pointerCapture ? 'pointer-events-auto visible' : 'pointer-events-none invisible'} bg-red-400 w-full h-full absolute left-0 top-0 z-[9999]`}
+		onlostpointercapture={() => {
+			pointerCapture = false;
+		}}
 		bind:this={pointerEl}
 	></div>
 	<div class="absolute left-0 top-0 pointer-events-auto" bind:this={sceneEl}></div>
