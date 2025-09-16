@@ -13,7 +13,7 @@
 	function scroll(blk = 'start') {
 		document
 			.getElementsByClassName('selected')[0]
-			.scrollIntoView({ behavior: 'smooth', block: blk });
+			?.scrollIntoView({ behavior: 'smooth', block: blk });
 	}
 
 	function selectIdx(idx) {
@@ -24,12 +24,12 @@
 
 	function startResize() {
 		console.log('starting...');
-		setPointerCapture(true);
+		// setPointerCapture(true);
 	}
 
 	function endResize() {
 		console.log('ending...');
-		setPointerCapture(false);
+		// setPointerCapture(false);
 	}
 
 	function toggleShowHandle() {
@@ -43,7 +43,11 @@
 	<!-- set as options -->
 	<div class="flex gap-1 p-2 w-full flex items-center justify-center">
 		<div class="flex-1 h-full">
-			<button onclick={() => remFunc(selected)} class="w-full h-full">-</button>
+			<button
+				disabled={sceneObj.geometry.length == 0}
+				onclick={() => remFunc(selected)}
+				class="w-full h-full">-</button
+			>
 		</div>
 		<button onclick={() => toggleShowHandle()} class="flex-1 bg-slate-900 rounded-md px-2">
 			{sceneObj.geometry.length} Item{sceneObj.geometry.length == 1 ? '' : 's'}
@@ -81,8 +85,6 @@
 		</div>
 	{/if}
 	<div
-		onpointerdown={startResize}
-		onpointerup={endResize}
-		class="h-[15px] w-full absolute left-0 bottom-[-20px] rounded-md bg-slate-500"
+		class="h-[15px] pointer-events-none w-full absolute left-0 bottom-[-20px] rounded-md bg-slate-500"
 	></div>
 </div>
