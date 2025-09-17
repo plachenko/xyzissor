@@ -1,8 +1,10 @@
 <script>
 	import { fade } from 'svelte/transition';
+	import {onMount} from 'svelte';
 
 	let x = $state(0);
 	let y = $state(0);
+	let touchEl = $state(null);
 
 	const handlePointerMove = (event) => {
 		x = event.clientX;
@@ -15,6 +17,38 @@
 	let pointers = new Map();
 
 	const colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan', 'magenta'];
+
+	function emulateMultiTouch(element, x, y, count = 2, radius = 30) {
+		// count = number of touches
+		// radius = distance from the main click center
+		const angleStep = (2 * Math.PI) / count;
+
+		for (let i = 0; i < count; i++) {
+			const angle = i * angleStep;
+			const offsetX = Math.cos(angle) * radius;
+			const offsetY = Math.sin(angle) * radius;
+
+			const touchX = x + offsetX;
+			const touchY = y + offsetY;
+
+			const event = new PointerEvent("pointerdown", {
+			bubbles: true,
+			cancelable: true,
+			pointerId: i + 1,
+			pointerType: "touch",
+			clientX: touchX,
+			clientY: touchY,
+			pressure: 0.5,
+			isPrimary: i === 0,
+			});
+
+			element.dispatchEvent(event);
+		}
+	}
+
+	onMount(() => {
+
+	});
 
 	const getColor = (id) => {
 		// Simple color assignment based on pointerId
@@ -35,6 +69,8 @@
 
 	const handlePointerDown = (e) => {
 		showDot = true;
+		console.log(e)
+
 		pointers.set(e.pointerId, {
 			x: e.clientX,
 			y: e.clientY,
@@ -46,6 +82,8 @@
 		pointers.delete(e.pointerId);
 		showDot = false;
 	};
+
+
 </script>
 
 <!-- Listen to pointermove on the window -->

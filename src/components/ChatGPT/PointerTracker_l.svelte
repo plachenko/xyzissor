@@ -43,12 +43,12 @@
 {#each Array.from(pointers.entries()) as [id, pointer]}
 	<div
 		class="dot"
-		style="
-      left: {pointer.x}px;
-      top: {pointer.y}px;
-      background-color: {pointer.color};
-    "
-	/>
+		style={`
+		left: ${pointer.x}px;
+		top: ${pointer.y}px;
+		background-color: {pointer.color};
+		`}
+		></div>
 {/each}
 
 <style>
