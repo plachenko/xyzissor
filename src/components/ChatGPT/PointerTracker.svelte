@@ -1,61 +1,31 @@
 <script>
-	import { fade } from 'svelte/transition';
-	import {onMount} from 'svelte';
+	import { fade, scale } from 'svelte/transition';
+	import { onMount } from 'svelte';
 
 	let x = $state(0);
 	let y = $state(0);
 	let touchEl = $state(null);
+	let { resetControls } = $props();
 
-	const handlePointerMove = (event) => {
-		x = event.clientX;
-		y = event.clientY;
-	};
+	let moved = $state(false);
 
 	let showDot = $state(false);
+	let pointerArr = $state(null);
 
 	// Store active pointers using their unique pointerId
 	let pointers = new Map();
 
 	const colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan', 'magenta'];
 
-	function emulateMultiTouch(element, x, y, count = 2, radius = 30) {
-		// count = number of touches
-		// radius = distance from the main click center
-		const angleStep = (2 * Math.PI) / count;
+	function distance() {}
 
-		for (let i = 0; i < count; i++) {
-			const angle = i * angleStep;
-			const offsetX = Math.cos(angle) * radius;
-			const offsetY = Math.sin(angle) * radius;
-
-			const touchX = x + offsetX;
-			const touchY = y + offsetY;
-
-			const event = new PointerEvent("pointerdown", {
-			bubbles: true,
-			cancelable: true,
-			pointerId: i + 1,
-			pointerType: "touch",
-			clientX: touchX,
-			clientY: touchY,
-			pressure: 0.5,
-			isPrimary: i === 0,
-			});
-
-			element.dispatchEvent(event);
-		}
-	}
-
-	onMount(() => {
-
-	});
+	onMount(() => {});
 
 	const getColor = (id) => {
 		// Simple color assignment based on pointerId
 		return colors[id % colors.length] || 'black';
 	};
 
-	/*
 	const handlePointerMove = (e) => {
 		if (pointers.has(e.pointerId)) {
 			pointers.set(e.pointerId, {
@@ -63,27 +33,32 @@
 				x: e.clientX,
 				y: e.clientY
 			});
+			pointerArr = Array.from(pointers.entries());
+			moved = true;
 		}
 	};
-  */
 
 	const handlePointerDown = (e) => {
 		showDot = true;
-		console.log(e)
 
 		pointers.set(e.pointerId, {
 			x: e.clientX,
 			y: e.clientY,
 			color: getColor(e.pointerId)
 		});
+
+		pointerArr = Array.from(pointers.entries());
 	};
 
 	const handlePointerUpOrLeave = (e) => {
+		if (!moved && pointerArr.length == 2) {
+			//resetControls();
+		}
 		pointers.delete(e.pointerId);
-		showDot = false;
+		pointerArr = Array.from(pointers.entries());
+		// showDot = false;
+		moved = false;
 	};
-
-
 </script>
 
 <!-- Listen to pointermove on the window -->
@@ -96,16 +71,35 @@
 />
 
 <!-- Dot following the pointer -->
+{#each pointerArr as pointer}
+	<div
+		transition:fade={{ duration: 200 }}
+		class="dot flex justify-center items-center"
+		style={`
+      background-color: ${pointer[1].color}; 
+      left: ${~~pointer[1].x}px; 
+      top: ${~~pointer[1].y}px;
+    `}
+	>
+		<div
+			transition:scale={{ x: 600, y: 600 }}
+			class="size-22 border-2 border-dashed border-white rounded-full absolute"
+		></div>
+	</div>
+{/each}
+
+<!--
 {#if showDot}
 	<div transition:fade={{ duration: 200 }} class="dot" style="left: {x}px; top: {y}px;"></div>
 {/if}
+-->
 
 <style>
 	.dot {
 		position: fixed;
-		width: 10px;
-		height: 10px;
-		background-color: red;
+		opacity: 0.5;
+		width: 70px;
+		height: 70px;
 		border-radius: 50%;
 		pointer-events: none;
 		transform: translate(-50%, -50%);

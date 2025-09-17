@@ -2,6 +2,9 @@
 	import * as THREE from 'three';
 	import { onMount } from 'svelte';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+	import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+	import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
+
 	import SceneList from '../components/SceneList.svelte';
 	import PointerTracker from '../components/ChatGPT/PointerTracker.svelte';
 
@@ -9,6 +12,8 @@
 	const cursorMesh = $state(new THREE.CircleGeometry(0.01));
 	let cursorMat = $state(null);
 	let cursor = $state(null);
+
+	let controls = $state(null);
 
 	let pointerCapture = $state(false);
 
@@ -27,8 +32,6 @@
 			mat: null
 		};
 
-		// console.log(type);
-
 		switch (type) {
 			case 'BoxGeometry':
 				meshInfo.geo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
@@ -41,11 +44,8 @@
 	}
 
 	function remFunc(idx) {
-		// console.log(idx);
 		// if (!idx) return;
 		let curObj = sceneObj.geometry[idx];
-		console.log(curObj);
-		console.log($state.snapshot(sceneObj.geometry));
 		sceneObj.geometry.splice(idx, 1);
 
 		scene.remove(curObj.meshInfo.mesh);
@@ -77,7 +77,6 @@
 		sceneObj.geometry.push({
 			..._obj
 		});
-		console.log(geometry);
 	}
 
 	const opts = $state([
@@ -109,7 +108,6 @@
 
 	function clearAll() {
 		sceneObj.geometry.forEach((e) => {
-			console.log(e);
 			if (e?.meshInfo) return;
 			/*
 			scene.remove(e.meshInfo.mesh);
@@ -127,13 +125,16 @@
   */
 
 	function addSceneObjs(list) {
-		console.log(list);
 		if (!list?.length) return;
 
 		list.forEach((itm) => {
 			let mesh = addObj(itm.type).mesh;
 			scene.add(mesh);
 		});
+	}
+
+	function resetControls() {
+		controls.reset();
 	}
 
 	onMount(() => {
@@ -152,12 +153,6 @@
 		const gridHelper = new THREE.GridHelper(size, divisions);
 		scene.add(gridHelper);
 
-		console.log(pointerEl);
-		pointerEl.addEventListener('pointermove', (e) => {
-			console.log(e);
-		});
-		// addSceneObjs(sceneObj.geometry);
-
 		cursorMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
 		cursorMat.depthTest = false;
 		cursorMat.depthWrite = false;
@@ -170,7 +165,7 @@
 		renderer.setAnimationLoop(animate);
 		sceneEl.appendChild(renderer.domElement);
 
-		const controls = new OrbitControls(camera, renderer.domElement);
+		controls = new OrbitControls(camera, renderer.domElement);
 		controls.update();
 
 		// animation
@@ -192,7 +187,7 @@
 <div class="p-2 absolute w-full h-full pointer-events-none">
 	<!-- Object List -->
 
-	<PointerTracker />
+	<PointerTracker {resetControls} />
 	<div
 		class={`${pointerCapture ? 'pointer-events-auto visible' : 'pointer-events-none invisible'} bg-red-400 w-full h-full absolute left-0 top-0 z-[9999]`}
 		onlostpointercapture={() => {

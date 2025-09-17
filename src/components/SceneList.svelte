@@ -10,6 +10,10 @@
 		}
 	});
 
+	function resize() {
+		console.log('listening for resize');
+	}
+
 	function scroll(blk = 'start') {
 		document
 			.getElementsByClassName('selected')[0]
@@ -38,7 +42,7 @@
 </script>
 
 <div
-	class="border-slate-500 border-1 pointer-events-auto text-sm p-1 bg-slate-300/20 h-max-[300px] flex items-center flex-col text-white absolute right-1 py-1 rounded-md"
+	class="select-none border-slate-500 border-1 pointer-events-auto text-sm p-1 bg-slate-300/20 h-max-[300px] flex items-center flex-col text-white absolute right-1 py-1 rounded-md z-[9999]"
 >
 	<!-- set as options -->
 	<div class="flex gap-1 p-2 w-full flex items-center justify-center">
@@ -84,7 +88,8 @@
 			<button class="w-full">Clear All</button>
 		</div>
 	{/if}
-	<div
+	<button
+		onclick={resize}
 		class="h-[15px] pointer-events-none w-full absolute left-0 bottom-[-20px] rounded-md bg-slate-500"
-	></div>
+	></button>
 </div>
