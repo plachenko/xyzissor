@@ -11,8 +11,6 @@
 	let mirrorMode = $state(false);
 	let mirrorCenter = $state(false);
 
-	let moved = $state(false);
-
 	let pointerArr = $state(null);
 
 	// Store active pointers using their unique pointerId
@@ -49,76 +47,71 @@
 	};
 	*/
 
-const handlePointerDown = (e) => {
-	// Right click (mouse) -> persistent static point
-	if (e.button === 0 && e.pointerType === "mouse" && e.shiftKey) {
-		pointers.set(`mouse-${Date.now()}`, {
-			x: e.clientX,
-			y: e.clientY,
-			color: getColor(e.pointerId),
-			locked: true
-		});
-		pointerArr = Array.from(pointers.entries());
-		return;
-	} 
-	
-	if(e.button === 2 && e.pointerType === "mouse"){
-		pointers.set(`mouse-${Date.now()}`, {
+	const handlePointerDown = (e) => {
+		// Right click (mouse) -> persistent static point
+		if (e.button === 0 && e.pointerType === 'mouse' && e.shiftKey) {
+			pointers.set(`mouse-${Date.now()}`, {
+				x: e.clientX,
+				y: e.clientY,
+				color: getColor(e.pointerId),
+				locked: true
+			});
+			pointerArr = Array.from(pointers.entries());
+			return;
+		}
+
+		if (e.button === 2 && e.pointerType === 'mouse') {
+			pointers.set(`mouse-${e.pointerId}`, {
+				x: e.clientX,
+				y: e.clientY,
+				color: getColor(~~(Math.random() * (colors.length - 1))),
+				locked: false
+			});
+			pointerArr = Array.from(pointers.entries());
+		}
+
+		// Normal pointer (touch, left click, pen, etc.)
+		pointers.set(e.pointerId, {
 			x: e.clientX,
 			y: e.clientY,
 			color: getColor(e.pointerId),
 			locked: false
 		});
+
 		pointerArr = Array.from(pointers.entries());
-	}
+	};
 
+	const handlePointerMove = (e) => {
+		if (pointers.has(e.pointerId)) {
+			const pointer = pointers.get(e.pointerId);
 
-	// Normal pointer (touch, left click, pen, etc.)
-	pointers.set(e.pointerId, {
-		x: e.clientX,
-		y: e.clientY,
-		color: getColor(e.pointerId),
-		locked: false
-	});
+			// Skip locked (persistent right-click) points
+			if (pointer.locked) return;
 
-	pointerArr = Array.from(pointers.entries());
-};
+			pointers.set(e.pointerId, {
+				...pointer,
+				x: e.clientX,
+				y: e.clientY
+			});
 
-const handlePointerMove = (e) => {
-	if (pointers.has(e.pointerId)) {
+			pointerArr = Array.from(pointers.entries());
+		}
+	};
+
+	const handlePointerUpOrLeave = (e) => {
+		// Don't delete persistent right-click points
 		const pointer = pointers.get(e.pointerId);
+		if (pointer && pointer.locked) {
+			return;
+		}
 
-		// Skip locked (persistent right-click) points
-		if (pointer.locked) return;
-
-		pointers.set(e.pointerId, {
-			...pointer,
-			x: e.clientX,
-			y: e.clientY
-		});
-
+		if (e.button === 2 && e.pointerType === 'mouse') {
+			pointers.delete('mouse-' + e.pointerId);
+		}
+		// Remove normal pointers
+		pointers.delete(e.pointerId);
 		pointerArr = Array.from(pointers.entries());
-		moved = true;
-	}
-};
-
-const handlePointerUpOrLeave = (e) => {
-	if (!moved && pointerArr.length === 2) {
-		// resetControls();
-	}
-
-	// Don't delete persistent right-click points
-	const pointer = pointers.get(e.pointerId);
-	if (pointer && pointer.locked) {
-		return;
-	}
-
-	// Remove normal pointers
-	pointers.delete(e.pointerId);
-	pointerArr = Array.from(pointers.entries());
-	moved = false;
-};
-
+	};
 </script>
 
 <!-- Listen to pointermove on the window -->
@@ -130,7 +123,7 @@ const handlePointerUpOrLeave = (e) => {
 	on:pointerleave={handlePointerUpOrLeave}
 />
 
-<button>lock  </button>
+<button>lock </button>
 
 <!-- Dot following the pointer -->
 {#each pointerArr as pointer}
