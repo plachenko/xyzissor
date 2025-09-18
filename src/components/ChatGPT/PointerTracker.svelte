@@ -6,10 +6,13 @@
 	let y = $state(0);
 	let touchEl = $state(null);
 	let { resetControls } = $props();
+	let touchIdx = $state(0);
+
+	let mirrorMode = $state(false);
+	let mirrorCenter = $state(false);
 
 	let moved = $state(false);
 
-	let showDot = $state(false);
 	let pointerArr = $state(null);
 
 	// Store active pointers using their unique pointerId
@@ -26,39 +29,96 @@
 		return colors[id % colors.length] || 'black';
 	};
 
+	/*
 	const handlePointerMove = (e) => {
 		if (pointers.has(e.pointerId)) {
+			if(pointers.has(touchIdx) && e.pointerId == touchIdx){
+				// right click
+				return;
+			}
+
 			pointers.set(e.pointerId, {
 				...pointers.get(e.pointerId),
 				x: e.clientX,
 				y: e.clientY
 			});
+			
 			pointerArr = Array.from(pointers.entries());
 			moved = true;
 		}
 	};
+	*/
 
-	const handlePointerDown = (e) => {
-		showDot = true;
-
-		pointers.set(e.pointerId, {
+const handlePointerDown = (e) => {
+	// Right click (mouse) -> persistent static point
+	if (e.button === 0 && e.pointerType === "mouse" && e.shiftKey) {
+		pointers.set(`mouse-${Date.now()}`, {
 			x: e.clientX,
 			y: e.clientY,
-			color: getColor(e.pointerId)
+			color: getColor(e.pointerId),
+			locked: true
+		});
+		pointerArr = Array.from(pointers.entries());
+		return;
+	} 
+	
+	if(e.button === 2 && e.pointerType === "mouse"){
+		pointers.set(`mouse-${Date.now()}`, {
+			x: e.clientX,
+			y: e.clientY,
+			color: getColor(e.pointerId),
+			locked: false
+		});
+		pointerArr = Array.from(pointers.entries());
+	}
+
+
+	// Normal pointer (touch, left click, pen, etc.)
+	pointers.set(e.pointerId, {
+		x: e.clientX,
+		y: e.clientY,
+		color: getColor(e.pointerId),
+		locked: false
+	});
+
+	pointerArr = Array.from(pointers.entries());
+};
+
+const handlePointerMove = (e) => {
+	if (pointers.has(e.pointerId)) {
+		const pointer = pointers.get(e.pointerId);
+
+		// Skip locked (persistent right-click) points
+		if (pointer.locked) return;
+
+		pointers.set(e.pointerId, {
+			...pointer,
+			x: e.clientX,
+			y: e.clientY
 		});
 
 		pointerArr = Array.from(pointers.entries());
-	};
+		moved = true;
+	}
+};
 
-	const handlePointerUpOrLeave = (e) => {
-		if (!moved && pointerArr.length == 2) {
-			//resetControls();
-		}
-		pointers.delete(e.pointerId);
-		pointerArr = Array.from(pointers.entries());
-		// showDot = false;
-		moved = false;
-	};
+const handlePointerUpOrLeave = (e) => {
+	if (!moved && pointerArr.length === 2) {
+		// resetControls();
+	}
+
+	// Don't delete persistent right-click points
+	const pointer = pointers.get(e.pointerId);
+	if (pointer && pointer.locked) {
+		return;
+	}
+
+	// Remove normal pointers
+	pointers.delete(e.pointerId);
+	pointerArr = Array.from(pointers.entries());
+	moved = false;
+};
+
 </script>
 
 <!-- Listen to pointermove on the window -->
@@ -69,6 +129,8 @@
 	on:pointercancel={handlePointerUpOrLeave}
 	on:pointerleave={handlePointerUpOrLeave}
 />
+
+<button>lock  </button>
 
 <!-- Dot following the pointer -->
 {#each pointerArr as pointer}
