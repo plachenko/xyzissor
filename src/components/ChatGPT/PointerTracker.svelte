@@ -1,6 +1,7 @@
 <script>
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import Connector from './Connector.svelte';
 
 	let x = $state(0);
 	let y = $state(0);
@@ -142,6 +143,9 @@
 		></div>
 	</div>
 {/each}
+{#if pointerArr && pointerArr.length >= 2}
+	<Connector p1={{ x: pointerArr[0][1].x, y: pointerArr[0][1].y }} p2={{ x: pointerArr[1][1].x, y: pointerArr[1][1].y }} />
+{/if}
 
 <!--
 {#if showDot}
