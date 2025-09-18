@@ -1,18 +1,17 @@
 <script>
-	let { setPointerCapture, sceneObj, addFunc, remFunc } = $props();
+	let { setPointerCapture, ypos, sceneObj, addFunc, remFunc } = $props();
 	let toggleShow = $state(true);
 	let selected = $state(0);
+	let maxHeight = 100;
+	let resizing = $state(false);
 
 	$effect(() => {
+		console.log(ypos);
 		if (sceneObj.geometry.length) {
 			selected = sceneObj.geometry.length - 1;
 			scroll();
 		}
 	});
-
-	function resize() {
-		console.log('listening for resize');
-	}
 
 	function scroll(blk = 'start') {
 		document
@@ -26,20 +25,22 @@
 		console.log('selecting..', idx);
 	}
 
-	function startResize() {
-		console.log('starting...');
-		// setPointerCapture(true);
-	}
-
-	function endResize() {
-		console.log('ending...');
-		// setPointerCapture(false);
-	}
 
 	function toggleShowHandle() {
 		toggleShow = !toggleShow;
 	}
+
+	function handlePointerMove(e) {
+		if (resizing) {
+			maxHeight = e.clientY - 20;
+			console.log(maxHeight);
+		}
+	}
 </script>
+
+<svelte:window
+	on:pointermove={handlePointerMove}
+/>
 
 <div
 	class="select-none border-slate-500 border-1 pointer-events-auto text-sm p-1 bg-slate-300/20 h-max-[300px] flex items-center flex-col text-white absolute right-1 py-1 rounded-md z-[9999]"
@@ -62,7 +63,7 @@
 	</div>
 	{#if toggleShow}
 		<ul
-			class="m-0 p-0 border-t-2 max-h-[100px] overflow-y-auto pointer-events-auto border-slate-300/20 border-dashed"
+			class={`m-0 p-0 border-t-2 max-h-[${maxHeight}px] overflow-y-auto pointer-events-auto border-slate-300/20 border-dashed`}
 		>
 			{#each sceneObj.geometry as geo, idx}
 				<li
@@ -89,7 +90,9 @@
 		</div>
 	{/if}
 	<button
-		onclick={resize}
-		class="h-[15px] pointer-events-none w-full absolute left-0 bottom-[-20px] rounded-md bg-slate-500"
+		onpointerdown={() => resizing = true}
+		onpointerleave={() => resizing = false}
+		onpointerup={() => resizing = false}
+		class="h-[15px] pointer-events-auto w-full absolute left-0 bottom-[-20px] rounded-md bg-slate-500"
 	></button>
 </div>
