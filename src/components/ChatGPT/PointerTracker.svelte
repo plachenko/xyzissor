@@ -2,6 +2,16 @@
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import Connector from './Connector.svelte';
+	import RadialMenu from './RadialMenu.svelte';
+	import RadialProgress from './RadialProgress.svelte';
+
+	let options = [
+		{ name: 'Home', icon: '🏠', action: () => alert('Go Home') },
+		{ name: 'Search', icon: '🔍', action: () => alert('Search...') },
+		{ name: 'Save', icon: '💾', action: () => alert('Saved!') },
+		{ name: 'Delete', icon: '🗑️', action: () => alert('Deleted!') },
+		{ name: 'Settings', icon: '⚙️', action: () => alert('Settings opened') }
+	];
 
 	let x = $state(0);
 	let y = $state(0);
@@ -11,6 +21,9 @@
 
 	let mirrorMode = $state(false);
 	let mirrorCenter = $state(false);
+
+	let tickInt = $state(0);
+	let pointerTick = $state(null);
 
 	let pointerArr = $state(null);
 
@@ -48,8 +61,11 @@
 	};
 	*/
 
+	let showMenu = $state(false);
+
 	const handlePointerDown = (e) => {
 		// Right click (mouse) -> persistent static point
+		//
 		if (e.button === 0 && e.pointerType === 'mouse' && e.shiftKey) {
 			pointers.set(`mouse-${Date.now()}`, {
 				x: e.clientX,
@@ -80,7 +96,26 @@
 		});
 
 		pointerArr = Array.from(pointers.entries());
+		handleTick();
 	};
+
+	function handleTick() {
+		if (pointerArr.length == 1) {
+			pointerTick = setInterval((evt) => {
+				if (tickInt >= 4) {
+					showMenu = true;
+					clearInterval(pointerTick);
+					pointerTick = null;
+					return;
+				}
+				tickInt++;
+			}, 500);
+		} else {
+			clearInterval(pointerTick);
+			pointerTick = null;
+			tickInt = 0;
+		}
+	}
 
 	const handlePointerMove = (e) => {
 		if (pointers.has(e.pointerId)) {
@@ -101,6 +136,10 @@
 
 	const handlePointerUpOrLeave = (e) => {
 		// Don't delete persistent right-click points
+		showMenu = false;
+		tickInt = 0;
+		clearInterval(pointerTick);
+		pointerTick = null;
 		const pointer = pointers.get(e.pointerId);
 		if (pointer && pointer.locked) {
 			return;
@@ -112,6 +151,7 @@
 		// Remove normal pointers
 		pointers.delete(e.pointerId);
 		pointerArr = Array.from(pointers.entries());
+		handleTick();
 	};
 </script>
 
@@ -125,6 +165,19 @@
 />
 
 <button>lock </button>
+
+{#if pointerArr?.length && !showMenu}
+	<div
+		transition:fade
+		style={`
+    left: ${pointerArr[0][1].x - 60}px; 
+    top: ${pointerArr[0][1].y - 60}px;
+  `}
+		class="absolute z-[9999] opacity-55"
+	>
+		<RadialProgress {tickInt} />
+	</div>
+{/if}
 
 <!-- Dot following the pointer -->
 {#each pointerArr as pointer}
@@ -143,8 +196,16 @@
 		></div>
 	</div>
 {/each}
+{#if showMenu}
+	<div class="absolute">
+		<RadialMenu {options} />
+	</div>
+{/if}
 {#if pointerArr && pointerArr.length >= 2}
-	<Connector p1={{ x: pointerArr[0][1].x, y: pointerArr[0][1].y }} p2={{ x: pointerArr[1][1].x, y: pointerArr[1][1].y }} />
+	<Connector
+		p1={{ x: pointerArr[0][1].x, y: pointerArr[0][1].y }}
+		p2={{ x: pointerArr[1][1].x, y: pointerArr[1][1].y }}
+	/>
 {/if}
 
 <!--
@@ -162,6 +223,6 @@
 		border-radius: 50%;
 		pointer-events: none;
 		transform: translate(-50%, -50%);
-		z-index: 9999;
+		z-index: 9998;
 	}
 </style>
