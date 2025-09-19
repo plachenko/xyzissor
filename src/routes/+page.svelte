@@ -1,4 +1,6 @@
 <script>
+	import RadialMenu from '../components/ChatGPT/RadialMenu.svelte';
+
 	import * as THREE from 'three';
 	import { onMount } from 'svelte';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -7,6 +9,14 @@
 
 	import SceneList from '../components/SceneList.svelte';
 	import PointerTracker from '../components/ChatGPT/PointerTracker.svelte';
+
+	let options = [
+		{ name: 'Home', icon: '🏠', action: () => alert('Go Home') },
+		{ name: 'Search', icon: '🔍', action: () => alert('Search...') },
+		{ name: 'Save', icon: '💾', action: () => alert('Saved!') },
+		{ name: 'Delete', icon: '🗑️', action: () => alert('Deleted!') },
+		{ name: 'Settings', icon: '⚙️', action: () => alert('Settings opened') }
+	];
 
 	let scene = $state(null);
 	const cursorMesh = $state(new THREE.CircleGeometry(0.01));
