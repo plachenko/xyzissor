@@ -8,7 +8,7 @@
 	$effect(() => {
 		console.log(ypos);
 		if (sceneObj.geometry.length) {
-			selected = sceneObj.geometry.length - 1;
+			// selected = sceneObj.geometry.length - 1;
 			scroll();
 		}
 	});
@@ -22,9 +22,7 @@
 	function selectIdx(idx) {
 		selected = idx;
 		scroll('start');
-		console.log('selecting..', idx);
 	}
-
 
 	function toggleShowHandle() {
 		toggleShow = !toggleShow;
@@ -33,14 +31,11 @@
 	function handlePointerMove(e) {
 		if (resizing) {
 			maxHeight = e.clientY - 20;
-			console.log(maxHeight);
 		}
 	}
 </script>
 
-<svelte:window
-	on:pointermove={handlePointerMove}
-/>
+<svelte:window on:pointermove={handlePointerMove} />
 
 <div
 	class="select-none border-slate-500 border-1 pointer-events-auto text-sm p-1 bg-slate-300/20 h-max-[300px] flex items-center flex-col text-white absolute right-1 py-1 rounded-md z-[9999]"
@@ -90,9 +85,9 @@
 		</div>
 	{/if}
 	<button
-		onpointerdown={() => resizing = true}
-		onpointerleave={() => resizing = false}
-		onpointerup={() => resizing = false}
+		onpointerdown={() => (resizing = true)}
+		onpointerleave={() => (resizing = false)}
+		onpointerup={() => (resizing = false)}
 		class="h-[15px] pointer-events-auto w-full absolute left-0 bottom-[-20px] rounded-md bg-slate-500"
 	></button>
 </div>

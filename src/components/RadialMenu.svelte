@@ -10,13 +10,17 @@
 	import { setUserSelect } from '$/helpers/style';
 	import { sineInOut } from 'svelte/easing';
 	import { spring } from 'svelte/motion';
-	import { scale } from 'svelte/transition';
+	import { scale, fly } from 'svelte/transition';
 
 	// Constants
 	const ITEM_OFFSET = 90;
 
+	let curMenuTick = $state(0);
+
 	// Props
 	export let menuItems: MenuItem[];
+
+	let showMenu = $state(true);
 
 	// Variables
 	let selected: number | null = null;
@@ -25,7 +29,24 @@
 	let innerEl: HTMLElement | null = null;
 	let easedRingAngle = spring(-1, {
 		stiffness: 0.04,
-		damping: 0.19,
+		damping: 0.19
+	});
+
+	let menuTicker = $state(null);
+
+	$effect(() => {
+		if (showMenu) {
+			console.log('menushow');
+			menuTicker = setTickInterval(() => {
+				if (curMenuTick <= options.length) {
+					console.log('ticking');
+					curMenuTick++;
+				}
+			}, 100);
+		} else {
+			curMenuTick = 0;
+			menuTicker = null;
+		}
 	});
 
 	// Reactive values
@@ -101,7 +122,7 @@
 		`--mouseX: ${clickCoords ? clickCoords[0] : 0}px`,
 		`--mouseY: ${clickCoords ? clickCoords[1] : 0}px`,
 		`--selectedAngle: ${$easedRingAngle}deg`,
-		`--ringPercent: ${ringPercent}%`,
+		`--ringPercent: ${ringPercent}%`
 	].join(';');
 
 	// Event Handlers
@@ -148,18 +169,19 @@
 	}}
 />
 
-{#if clickCoords}
-	<div
-		class="radial-menu-wrapper"
-		{style}
-		transition:scale={{ start: 0.9, duration: 150, easing: sineInOut }}
-	>
+<div
+	class="absolute bg-yellow-400 size-[800px] rounded-full border-white absolute left-0 top-0"
+></div>
+{#if showMenu}
+	<div class="bg-red-400 radial-menu-wrapper" {style} transition:fly>
 		<div class="ring" data-has-selected={selected !== null} />
 		<ul class="radial-menu">
 			{#each menuItems.slice(0, menuItems.length) as item, i}
-				<li class="item" style={getItemStyle(i)} data-selected={selected === i}>
-					<i class={`ti ti-${item.icon}`} />
-				</li>
+				{#if i <= curMenuTick}
+					<li transition:fly class="item" style={getItemStyle(i)} data-selected={selected === i}>
+						<i class={`ti ti-${item.icon}`} />
+					</li>
+				{/if}
 			{/each}
 		</ul>
 		<div class="inner" bind:this={innerEl}>

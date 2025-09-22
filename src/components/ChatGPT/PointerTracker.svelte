@@ -13,6 +13,10 @@
 		{ name: 'Settings', icon: '⚙️', action: () => alert('Settings opened') }
 	];
 
+	let ticks = $state(1);
+
+	let radialEl = $state(null);
+
 	let x = $state(0);
 	let y = $state(0);
 	let touchEl = $state(null);
@@ -102,8 +106,9 @@
 	function handleTick() {
 		if (pointerArr.length == 1) {
 			pointerTick = setInterval((evt) => {
-				if (tickInt >= 4) {
+				if (tickInt >= ticks) {
 					showMenu = true;
+					console.log(radialEl?.getBoundingClientRect());
 					clearInterval(pointerTick);
 					pointerTick = null;
 					return;
@@ -175,7 +180,7 @@
   `}
 		class="absolute z-[9999] opacity-55"
 	>
-		<RadialProgress {tickInt} />
+		<RadialProgress {tickInt} {ticks} />
 	</div>
 {/if}
 
@@ -194,18 +199,28 @@
 			transition:scale={{ x: 600, y: 600 }}
 			class="size-22 border-2 border-dashed border-white rounded-full absolute"
 		></div>
+		{#if showMenu}
+			<div
+				bind:this={radialEl}
+				class="absolute left-[-115px] top-[-115px] top-0 w-full h-full z-[9999]"
+			>
+				<RadialMenu {options} />
+			</div>
+		{/if}
 	</div>
 {/each}
-{#if showMenu}
-	<div class="absolute">
-		<RadialMenu {options} />
+{#if pointerArr && pointerArr.length >= 2}
+	<div transition:scale>
+		<Connector
+			p1={{ x: pointerArr[0][1].x, y: pointerArr[0][1].y }}
+			p2={{ x: pointerArr[1][1].x, y: pointerArr[1][1].y }}
+		/>
 	</div>
 {/if}
-{#if pointerArr && pointerArr.length >= 2}
-	<Connector
-		p1={{ x: pointerArr[0][1].x, y: pointerArr[0][1].y }}
-		p2={{ x: pointerArr[1][1].x, y: pointerArr[1][1].y }}
-	/>
+{#if showMenu}
+	<div class="absolute left-[-115px] top-[-115px] top-0 w-full h-full z-[9999]">
+		<RadialMenu {options} />
+	</div>
 {/if}
 
 <!--
