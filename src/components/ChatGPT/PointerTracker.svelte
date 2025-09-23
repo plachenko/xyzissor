@@ -1,6 +1,8 @@
 <script>
+	import { Vector3 } from 'three';
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import { LineBetween } from './LineBetween';
 	import Connector from './Connector.svelte';
 	import RadialMenu from './RadialMenu.svelte';
 	import RadialProgress from './RadialProgress.svelte';
@@ -20,11 +22,14 @@
 	let x = $state(0);
 	let y = $state(0);
 	let touchEl = $state(null);
-	let { resetControls } = $props();
+	let { resetControls, scene } = $props();
 	let touchIdx = $state(0);
 
 	let mirrorMode = $state(false);
 	let mirrorCenter = $state(false);
+
+	let p1 = $state(new Vector3(0, 0, 0));
+	let p2 = $state(new Vector3(0, 10, 5));
 
 	let tickInt = $state(0);
 	let pointerTick = $state(null);
@@ -36,9 +41,14 @@
 
 	const colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan', 'magenta'];
 
+	const lineObj = new LineBetween(p1, p2);
+
 	function distance() {}
 
-	onMount(() => {});
+	onMount(() => {
+		console.log(scene);
+		// scene.add(lineObj);
+	});
 
 	const getColor = (id) => {
 		// Simple color assignment based on pointerId
@@ -169,59 +179,60 @@
 	on:pointerleave={handlePointerUpOrLeave}
 />
 
-<button>lock </button>
-
-{#if pointerArr?.length && !showMenu}
-	<div
-		transition:fade
-		style={`
+<div class="select-none absolute z-[9999]">
+	<button>lock </button>
+	{#if pointerArr?.length && !showMenu}
+		<div
+			transition:fade
+			style={`
     left: ${pointerArr[0][1].x - 60}px; 
     top: ${pointerArr[0][1].y - 60}px;
   `}
-		class="absolute z-[9999] opacity-55"
-	>
-		<RadialProgress {tickInt} {ticks} />
-	</div>
-{/if}
+			class="absolute z-[9999] opacity-55"
+		>
+			<RadialProgress {tickInt} {ticks} />
+		</div>
+	{/if}
 
-<!-- Dot following the pointer -->
-{#each pointerArr as pointer}
-	<div
-		transition:fade={{ duration: 200 }}
-		class="dot flex justify-center items-center"
-		style={`
+	<!-- Dot following the pointer -->
+	{#each pointerArr as pointer}
+		<div
+			transition:fade={{ duration: 200 }}
+			class="dot flex justify-center items-center"
+			style={`
       background-color: ${pointer[1].color}; 
       left: ${~~pointer[1].x}px; 
       top: ${~~pointer[1].y}px;
     `}
-	>
-		<div
-			transition:scale={{ x: 600, y: 600 }}
-			class="size-22 border-2 border-dashed border-white rounded-full absolute"
-		></div>
-		{#if showMenu}
+		>
 			<div
-				bind:this={radialEl}
-				class="absolute left-[-115px] top-[-115px] top-0 w-full h-full z-[9999]"
-			>
-				<RadialMenu {options} />
-			</div>
-		{/if}
-	</div>
-{/each}
-{#if pointerArr && pointerArr.length >= 2}
-	<div transition:scale>
-		<Connector
-			p1={{ x: pointerArr[0][1].x, y: pointerArr[0][1].y }}
-			p2={{ x: pointerArr[1][1].x, y: pointerArr[1][1].y }}
-		/>
-	</div>
-{/if}
-{#if showMenu}
-	<div class="absolute left-[-115px] top-[-115px] top-0 w-full h-full z-[9999]">
-		<RadialMenu {options} />
-	</div>
-{/if}
+				transition:scale={{ x: 600, y: 600 }}
+				class="size-22 border-2 border-dashed border-white rounded-full absolute"
+			></div>
+			{#if showMenu}
+				<div
+					bind:this={radialEl}
+					class="absolute left-[-115px] top-[-115px] top-0 w-full h-full z-[9999]"
+				>
+					<RadialMenu {options} />
+				</div>
+			{/if}
+		</div>
+	{/each}
+	{#if pointerArr && pointerArr.length >= 2}
+		<div transition:scale>
+			<Connector
+				p1={{ x: pointerArr[0][1].x, y: pointerArr[0][1].y }}
+				p2={{ x: pointerArr[1][1].x, y: pointerArr[1][1].y }}
+			/>
+		</div>
+	{/if}
+	{#if showMenu}
+		<div class="absolute left-[-115px] top-[-115px] top-0 w-full h-full z-[9999]">
+			<RadialMenu {options} />
+		</div>
+	{/if}
+</div>
 
 <!--
 {#if showDot}

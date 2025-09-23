@@ -142,6 +142,7 @@
 		camera.position.z = 0.5;
 		camera.position.y = 0.5;
 		camera.position.x = 0.5;
+		camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 		scene = new THREE.Scene();
 
@@ -162,13 +163,14 @@
 		renderer.setAnimationLoop(animate);
 		sceneEl.appendChild(renderer.domElement);
 
-		controls = new OrbitControls(camera, renderer.domElement);
-		controls.update();
+		// controls = new OrbitControls(camera, renderer.domElement);
+		// controls.update();
 
 		// animation
 
 		function animate(time) {
-			controls.update();
+			// controls.update();
+			//
 
 			cursor.lookAt(camera.position);
 
@@ -184,7 +186,7 @@
 <div class="p-2 absolute w-full h-full pointer-events-none">
 	<!-- Object List -->
 
-	<PointerTracker {resetControls} />
+	<PointerTracker {scene} {resetControls} />
 	<div
 		class={`${pointerCapture ? 'pointer-events-auto visible' : 'pointer-events-none invisible'} bg-red-400 w-full h-full absolute left-0 top-0 z-[9999]`}
 		onlostpointercapture={() => {
