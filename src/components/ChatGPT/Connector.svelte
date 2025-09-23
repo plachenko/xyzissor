@@ -45,7 +45,7 @@
 	></div>
   -->
 	<div
-		class="font-bold text-white"
+		class="font-bold text-white whitespace-nowrap"
 		style={`
 
 		transform: rotate(${-angle}deg);

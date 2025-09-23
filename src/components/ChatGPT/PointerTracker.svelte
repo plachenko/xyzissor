@@ -15,7 +15,7 @@
 		{ name: 'Settings', icon: '⚙️', action: () => alert('Settings opened') }
 	];
 
-	let ticks = $state(1);
+	let ticks = $state(5);
 
 	let radialEl = $state(null);
 
@@ -80,6 +80,7 @@
 	const handlePointerDown = (e) => {
 		// Right click (mouse) -> persistent static point
 		//
+		e.preventDefault();
 		if (e.button === 0 && e.pointerType === 'mouse' && e.shiftKey) {
 			pointers.set(`mouse-${Date.now()}`, {
 				x: e.clientX,
@@ -177,6 +178,7 @@
 	on:pointerup={handlePointerUpOrLeave}
 	on:pointercancel={handlePointerUpOrLeave}
 	on:pointerleave={handlePointerUpOrLeave}
+	on:contextmenu={(e) => e.preventDefault()}
 />
 
 <div class="select-none absolute z-[9999]">
@@ -185,8 +187,8 @@
 		<div
 			transition:fade
 			style={`
-    left: ${pointerArr[0][1].x - 60}px; 
-    top: ${pointerArr[0][1].y - 60}px;
+    left: ${pointerArr[0][1].x - 68}px; 
+    top: ${pointerArr[0][1].y - 68}px;
   `}
 			class="absolute z-[9999] opacity-55"
 		>
@@ -220,7 +222,7 @@
 		</div>
 	{/each}
 	{#if pointerArr && pointerArr.length >= 2}
-		<div transition:scale>
+		<div transition:fade>
 			<Connector
 				p1={{ x: pointerArr[0][1].x, y: pointerArr[0][1].y }}
 				p2={{ x: pointerArr[1][1].x, y: pointerArr[1][1].y }}
