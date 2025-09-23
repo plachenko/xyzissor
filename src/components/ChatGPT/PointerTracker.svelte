@@ -15,7 +15,7 @@
 		{ name: 'Settings', icon: '⚙️', action: () => alert('Settings opened') }
 	];
 
-	let ticks = $state(5);
+	let ticks = $state(1);
 
 	let radialEl = $state(null);
 
@@ -119,7 +119,6 @@
 			pointerTick = setInterval((evt) => {
 				if (tickInt >= ticks) {
 					showMenu = true;
-					console.log(radialEl?.getBoundingClientRect());
 					clearInterval(pointerTick);
 					pointerTick = null;
 					return;
@@ -211,14 +210,6 @@
 				transition:scale={{ x: 600, y: 600 }}
 				class="size-22 border-2 border-dashed border-white rounded-full absolute"
 			></div>
-			{#if showMenu}
-				<div
-					bind:this={radialEl}
-					class="absolute left-[-115px] top-[-115px] top-0 w-full h-full z-[9999]"
-				>
-					<RadialMenu {options} />
-				</div>
-			{/if}
 		</div>
 	{/each}
 	{#if pointerArr && pointerArr.length >= 2}
@@ -229,17 +220,30 @@
 			/>
 		</div>
 	{/if}
+</div>
+
+<!--
+<div style="pointer-events: none;" class="w-30 h-30 absolute left-0 top-0 z-[9998]">
 	{#if showMenu}
-		<div class="absolute left-[-115px] top-[-115px] top-0 w-full h-full z-[9999]">
+		<div
+			bind:this={radialEl}
+			style={`
+      pointer-events: none;
+          left: ${~~pointerArr[0][1].x} px; 
+          top: ${~~pointerArr[0][1].y} px; 
+        `}
+			class={`
+      absolute 
+      bg-red-300
+      w-full 
+      h-full 
+      z-[9999]`}
+		>
+			<span class="text-white">{pointerArr[0][1].x}{pointerArr[0].x}</span>
 			<RadialMenu {options} />
 		</div>
 	{/if}
 </div>
-
-<!--
-{#if showDot}
-	<div transition:fade={{ duration: 200 }} class="dot" style="left: {x}px; top: {y}px;"></div>
-{/if}
 -->
 
 <style>

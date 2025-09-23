@@ -163,6 +163,13 @@
 		renderer.setAnimationLoop(animate);
 		sceneEl.appendChild(renderer.domElement);
 
+		window.addEventListener('resize', () => {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		});
+
 		// controls = new OrbitControls(camera, renderer.domElement);
 		// controls.update();
 
