@@ -19,6 +19,8 @@
 		z: 0.2
 	});
 
+	let camLock = $state(false);
+
 	let geoParamArray = $state([{ ...geoParams }, { ...geoParams }]);
 
 	function switchGeoMode(_mode) {
@@ -26,6 +28,17 @@
 	}
 
 	$effect(() => {
+		// console.log(camLock);
+		$inspect(camLock);
+
+		if (camLock && camera) {
+			camera.position.set(
+				geoParamArray[geoMode].x + 0.2,
+				geoParamArray[geoMode].y + 0.2,
+				geoParamArray[geoMode].z + 0.2
+			);
+			camera.lookAt(cursor);
+		}
 		//console.log('changeMode');
 		// geoParamArray[geoMode] = {...geoParams};
 		$inspect(geoParamArray);
@@ -151,6 +164,7 @@
 	function clickHndl(obj, evt) {
 		obj.func();
 	}
+	let camera = $state(null);
 
 	function clearAll() {
 		sceneObj.geometry.forEach((e) => {
@@ -187,7 +201,7 @@
 		const width = window.innerWidth;
 		const height = window.innerHeight;
 
-		const camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 10);
+		camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 10);
 		camera.position.z = 0.5;
 		camera.position.y = 0.5;
 		camera.position.x = 0.5;
@@ -267,8 +281,10 @@
   -->
 	<div class="z-998 select-none pointer-events-none h-full w-full absolute top-0 left-0">
 		<div class="rounded-md bg-red-300 w-full pointer-events-auto absolute bottom-0 flex flex-col">
-			<div class="p-1 flex gap-1 border-b-2 border-dashed">
-				<button onclick={resetGeoParams} class="w-full">Lock Cam</button>
+			<div class="p-1 flex gap-1 border-b-2 border-dashd">
+				<button onclick={() => (camLock = !camLock)} class={`${camLock ? 'font-bold' : ''} w-full`}
+					>Lock Cam</button
+				>
 				<button onclick={resetGeoParams} class="w-full">Reset</button>
 			</div>
 			<div class="flex p-1 gap-1">
