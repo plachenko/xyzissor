@@ -46,7 +46,6 @@
 	function distance() {}
 
 	onMount(() => {
-		console.log(scene);
 		// scene.add(lineObj);
 	});
 
@@ -80,7 +79,7 @@
 	const handlePointerDown = (e) => {
 		// Right click (mouse) -> persistent static point
 		//
-		e.preventDefault();
+		//e.preventDefault();
 		if (e.button === 0 && e.pointerType === 'mouse' && e.shiftKey) {
 			pointers.set(`mouse-${Date.now()}`, {
 				x: e.clientX,

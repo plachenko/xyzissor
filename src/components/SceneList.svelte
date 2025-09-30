@@ -6,7 +6,6 @@
 	let resizing = $state(false);
 
 	$effect(() => {
-		console.log(ypos);
 		if (sceneObj.geometry.length) {
 			// selected = sceneObj.geometry.length - 1;
 			scroll();
@@ -85,6 +84,7 @@
 		</div>
 	{/if}
 	<button
+		aria-label="resize"
 		onpointerdown={() => (resizing = true)}
 		onpointerleave={() => (resizing = false)}
 		onpointerup={() => (resizing = false)}

@@ -13,6 +13,35 @@
 	let cursorMat = $state(null);
 	let cursor = $state(null);
 
+	let geoParams = $state({
+		x: 0.2,
+		y: 0.2,
+		z: 0.2
+	});
+
+	let geoParamArray = $state([{ ...geoParams }, { ...geoParams }]);
+
+	function switchGeoMode(_mode) {
+		geoMode = _mode;
+	}
+
+	$effect(() => {
+		//console.log('changeMode');
+		// geoParamArray[geoMode] = {...geoParams};
+		$inspect(geoParamArray);
+		/*
+
+
+    */
+		if (cursor) {
+			if (geoMode == 0) {
+				cursor.position.x = geoParamArray[0].x;
+				cursor.position.y = geoParamArray[0].y;
+				cursor.position.z = geoParamArray[0].z;
+			}
+		}
+	});
+
 	let controls = $state(null);
 
 	let pointerCapture = $state(false);
@@ -20,10 +49,23 @@
 	let sceneEl = $state(null);
 	let pointerEl = $state(null);
 
+	let geoMode = $state(0);
+	let geoControls = $state(['cursor', 'geometry']);
+
 	const sceneObj = $state({
 		title: 'untitled',
 		geometry: []
 	});
+
+	function resetGeoParams() {
+		console.log('huh');
+		geoParams = {
+			x: 0,
+			y: 0,
+			z: 0
+		};
+		geoParamArray[geoMode] = { ...geoParams };
+	}
 
 	function addObj(type = 'BoxGeometry') {
 		const meshInfo = {
@@ -52,7 +94,11 @@
 	}
 
 	function addFunc() {
-		const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+		const geometry = new THREE.BoxGeometry(
+			geoParamArray[1].x,
+			geoParamArray[1].y,
+			geoParamArray[1].z
+		);
 		const mat = new THREE.MeshNormalMaterial();
 		const mesh = new THREE.Mesh(geometry, mat);
 
@@ -61,8 +107,11 @@
 		let _obj = {
 			type: 'BoxGeometry',
 			size: new THREE.Vector3(0.2, 0.2, 0.2),
-			pos: new THREE.Vector3(0.2, 0.2, 0.2)
+			pos: new THREE.Vector3(...cursor.position)
 		};
+
+		mesh.position.set(...cursor.position);
+		console.log(cursor.position);
 
 		// _obj.meshInfo = addObj([_obj.type]);
 		_obj.meshInfo = {
@@ -154,6 +203,7 @@
 		cursorMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
 		cursorMat.depthTest = false;
 		cursorMat.depthWrite = false;
+		cursorMat.renderOrder = 9;
 
 		cursor = new THREE.Mesh(cursorMesh, cursorMat);
 		scene.add(cursor);
@@ -163,6 +213,9 @@
 		renderer.setAnimationLoop(animate);
 		sceneEl.appendChild(renderer.domElement);
 
+		controls = new OrbitControls(camera, renderer.domElement);
+		controls.update();
+
 		window.addEventListener('resize', () => {
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
@@ -170,14 +223,10 @@
 			renderer.setSize(window.innerWidth, window.innerHeight);
 		});
 
-		// controls = new OrbitControls(camera, renderer.domElement);
-		// controls.update();
-
 		// animation
 
 		function animate(time) {
-			// controls.update();
-			//
+			controls.update();
 
 			cursor.lookAt(camera.position);
 
@@ -216,4 +265,37 @@
 		</button>
 	{/each}
   -->
+	<div class="z-998 select-none pointer-events-none h-full w-full absolute top-0 left-0">
+		<div class="rounded-md bg-red-300 w-full pointer-events-auto absolute bottom-0 flex flex-col">
+			<div class="p-1 flex gap-1 border-b-2 border-dashed">
+				<button onclick={resetGeoParams} class="w-full">Lock Cam</button>
+				<button onclick={resetGeoParams} class="w-full">Reset</button>
+			</div>
+			<div class="flex p-1 gap-1">
+				{#each geoControls as control, idx}
+					<button
+						onclick={() => switchGeoMode(idx)}
+						class={`${idx == geoMode ? 'font-bold border-2' : ''} flex-1`}>{control}</button
+					>
+				{/each}
+			</div>
+			<div class="flex">
+				{#each Object.keys(geoParamArray[geoMode]) as paramName, idx}
+					<div class="flex-1 flex flex-col items-center w-full p-2 last:border-r-0 border-r-2">
+						<div class="mb-2 border-b-2 border-slate-600/70 border-dashed w-full text-center">
+							{paramName}: {geoParamArray[geoMode][paramName]}
+						</div>
+						<input
+							class="w-full"
+							max={2}
+							min={-2}
+							step=".01"
+							type="range"
+							bind:value={geoParamArray[geoMode][paramName]}
+						/>
+					</div>
+				{/each}
+			</div>
+		</div>
+	</div>
 </div>
