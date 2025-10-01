@@ -20,6 +20,8 @@
 
 	let radialEl = $state(null);
 
+
+
 	let x = $state(0);
 	let y = $state(0);
 	let touchEl = $state(null);
@@ -44,7 +46,6 @@
 
 	const lineObj = new LineBetween(p1, p2);
 
-	function distance() {}
 
 	onMount(() => {
 		// scene.add(lineObj);
@@ -76,6 +77,24 @@
 	*/
 
 	let showMenu = $state(false);
+
+	let dx = $state(0);
+	let dy = $state(0);
+	let distance = $state(0);
+
+	
+	/*
+	let dx = $derived(pointers?.size >= 2 ? pointerArr[1][1].x - pointerArr[0][1].x : 0);
+	let dy = $derived(pointers?.size >= 2 ? pointerArr[1][1].y - pointerArr[0][1].y : 0);
+	let distance = $derived(Math.sqrt(dx * dx + dy * dy));
+
+	*/
+
+	$effect(() => {
+		dx = pointerArr?.length >= 2 ? pointerArr[1][1].x - pointerArr[0][1].x : 0;
+		dy = pointerArr?.length >= 2 ? pointerArr[1][1].y - pointerArr[0][1].y : 0;
+		distance = Math.sqrt(dx * dx + dy * dy);
+	});
 
 	const handlePointerDown = (e) => {
 		// Right click (mouse) -> persistent static point
@@ -192,11 +211,11 @@
 	{#if pointerArr?.length && !showMenu}
 		<div
 			transition:fade
-			style={`
-    left: ${pointerArr[0][1].x - 68}px; 
-    top: ${pointerArr[0][1].y - 68}px;
-  `}
 			class="absolute z-[9999] opacity-55"
+			style={`
+			left: ${pointerArr[0][1].x - 68}px; 
+			top: ${pointerArr[0][1].y - 68}px;
+			`}	
 		>
 			<RadialProgress {tickInt} {ticks} />
 		</div>
@@ -206,12 +225,12 @@
 	{#each pointerArr as pointer}
 		<div
 			transition:fade={{ duration: 200 }}
-			class="dot flex justify-center items-center"
+			class={`size-${distance < 60 ? '5' : '22'} dot flex justify-center items-center`}
 			style={`
-      background-color: ${pointer[1].color}; 
-      left: ${~~pointer[1].x}px; 
-      top: ${~~pointer[1].y}px;
-    `}
+			background-color: ${pointer[1].color}; 
+			left: ${~~pointer[1].x}px; 
+			top: ${~~pointer[1].y}px;
+			`}
 		>
 			<div
 				transition:scale={{ x: 600, y: 600 }}
@@ -257,8 +276,6 @@
 	.dot {
 		position: fixed;
 		opacity: 0.5;
-		width: 70px;
-		height: 70px;
 		border-radius: 50%;
 		pointer-events: none;
 		transform: translate(-50%, -50%);

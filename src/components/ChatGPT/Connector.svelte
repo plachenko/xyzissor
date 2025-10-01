@@ -27,8 +27,10 @@
   "
 	style={`
 		width: ${distance}px;
+		height: ${distance < 60 ? 10 : 60}px; /* thickness */
 		left: ${p1.x}px;
-		top: ${p1.y - 27}px;
+		top: ${distance < 60  ? p1.y - 5 : p1.y - 27}px;
+		/*top: ${distance < 60 ? p1.y + distance / 2 - 30 : p1.y - 27}px; */
 		transform: rotate(${angle}deg);
 	`}
 >
@@ -47,6 +49,8 @@
 	<div
 		class="font-bold text-white whitespace-nowrap"
 		style={`
+		top: ${distance < 60 ? -80 : 15}px;
+		position: absolute;
 
 		transform: rotate(${-angle}deg);
 `}
@@ -58,7 +62,6 @@
 <style>
 	.bar {
 		position: fixed;
-		height: 60px; /* thickness */
 		background: rgba(0, 128, 255, 0.5);
 
 		transform-origin: left center; /* anchor rectangle at p1 */
