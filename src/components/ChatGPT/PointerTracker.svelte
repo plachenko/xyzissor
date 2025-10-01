@@ -16,13 +16,14 @@
 	];
 
 	let ticks = $state(1);
+	let pointerLocked = $state(false);
 
 	let radialEl = $state(null);
 
 	let x = $state(0);
 	let y = $state(0);
 	let touchEl = $state(null);
-	let { resetControls, scene } = $props();
+	let { resetControls, scene, setPointerLock } = $props();
 	let touchIdx = $state(0);
 
 	let mirrorMode = $state(false);
@@ -180,7 +181,14 @@
 />
 
 <div class="select-none absolute z-[9999]">
-	<button>lock </button>
+	<button
+		onclick={() => {
+			pointerLocked = !pointerLocked;
+			setPointerLock(pointerLocked);
+		}}
+		class={`pointer-events-auto ${pointerLocked ? 'font-bold' : ''}`}
+		>lock
+	</button>
 	{#if pointerArr?.length && !showMenu}
 		<div
 			transition:fade

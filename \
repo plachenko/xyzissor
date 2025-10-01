@@ -241,14 +241,15 @@
 		const gridHelper = new THREE.GridHelper(size, divisions, 0xff0000);
 		scene.add(gridHelper);
 
+		gridHelper2.material.depthFunc = THREE.AlwaysDepth;
+
 		cursorMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-		// cursorMat.depthTest = false;
-		// cursorMat.depthWrite = false;
-		// cursorMat.renderOrder = 9;
+		cursorMat.depthTest = false;
+		cursorMat.depthWrite = false;
+		cursorMat.renderOrder = 9;
 
 		cursor = new THREE.Mesh(cursorMesh, cursorMat);
 		scene.add(cursor);
-		// cursor.material.depthFunc = THREE.AlwaysDepth;
 
 		const renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.setSize(width, height);
