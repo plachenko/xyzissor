@@ -12,6 +12,8 @@
 	import SceneList from '../components/SceneList.svelte';
 	import PointerTracker from '../components/ChatGPT/PointerTracker.svelte';
 
+	import Pane from '../components/Claude/Pane.svelte';
+
 	let scene = $state(null);
 	const cursorMesh = $state(new THREE.CircleGeometry(0.01));
 	let cursorMat = $state(null);
@@ -276,7 +278,7 @@
 		composer.addPass(outlinePass);
 
 		controls = new OrbitControls(camera, renderer.domElement);
-		// controls.update();
+		controls.update();
 
 		window.addEventListener('resize', () => {
 			camera.aspect = window.innerWidth / window.innerHeight;
@@ -302,9 +304,14 @@
 	}
 </script>
 
-<div class="p-2 absolute w-full h-full pointer-events-none">
+<div class=" absolute w-full h-full pointer-events-none">
 	<!-- Object List -->
-
+	 <!--
+	<Pane {sceneEl}/>
+ -->
+	
+	<div class="absolute left-0 top-0 pointer-events-auto w-full h-full" bind:this={sceneEl}></div>
+	
 	<PointerTracker {setPointerLock} {scene} {resetControls} />
 	<div
 		class={`${pointerCapture ? 'pointer-events-auto visible' : 'pointer-events-none invisible'} bg-red-400 w-full h-full absolute left-0 top-0 z-[9999]`}
@@ -313,21 +320,7 @@
 		}}
 		bind:this={pointerEl}
 	></div>
-	<div class="absolute left-0 top-0 pointer-events-auto" bind:this={sceneEl}></div>
 	<SceneList {selectedIdx} {setPointerCapture} {sceneObj} {addFunc} {remFunc} />
-
-	<!--
-	{#each opts as optItem}
-		<button
-			onclick={(e) => {
-				clickHndl(optItem, e);
-			}}
-			class="mt-1 bg-red-300 size-10 pointer-events-auto rounded-md flex items-center justify-center"
-		>
-			{optItem.name}
-		</button>
-	{/each}
-  -->
 	<div class="z-998 select-none pointer-events-none h-full w-full absolute top-0 left-0">
 		<div class="rounded-md bg-red-300 w-full pointer-events-auto absolute bottom-0 flex flex-col">
 			<div class="p-1 flex gap-1 border-b-2 border-dashd">
