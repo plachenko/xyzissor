@@ -238,8 +238,16 @@
 
 		const size = 10;
 		const divisions = 10;
-		const gridHelper = new THREE.GridHelper(size, divisions, 0xff0000);
-		scene.add(gridHelper);
+		const gridHelperX = new THREE.GridHelper(size, divisions, 0xff0000);
+		scene.add(gridHelperX);
+
+		const gridHelperY = new THREE.GridHelper(size, divisions, 0x00ff00);
+		gridHelperY.rotation.x = Math.PI / 2;
+		scene.add(gridHelperY);
+
+		const gridHelperZ = new THREE.GridHelper(size, divisions, 0x0000ff);
+		gridHelperZ.rotation.z = Math.PI / 2;
+		scene.add(gridHelperZ);
 
 		cursorMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
 		// cursorMat.depthTest = false;
