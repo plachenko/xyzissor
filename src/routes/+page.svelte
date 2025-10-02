@@ -9,6 +9,8 @@
 	import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 	import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
+	import RadialMenu from '../components/Claude/RadialMenu.svelte';
+
 	import SceneList from '../components/SceneList.svelte';
 	import PointerTracker from '../components/ChatGPT/PointerTracker.svelte';
 
@@ -304,6 +306,7 @@
 	}
 </script>
 
+	<RadialMenu />
 <div class=" absolute w-full h-full pointer-events-none">
 	<!-- Object List -->
 	 <!--
