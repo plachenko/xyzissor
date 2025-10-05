@@ -39,36 +39,34 @@
 		isOpen = true;
 		hoveredIndex = -1;
 	}
+function movePoint(e) {
+    if (!isOpen) return;
 
-	function movePoint(e) {
-		if (!isOpen) return;
+    const rect = containerRef.getBoundingClientRect();
+    const centerX = position.x;
+    const centerY = position.y;
+    const mouseX = e.x - rect.left;
+    const mouseY = e.y - rect.top;
 
-		const rect = containerRef.getBoundingClientRect();
-		const centerX = position.x;
-		const centerY = position.y;
-		const mouseX = e.x - rect.left;
-		const mouseY = e.y - rect.top;
+    const dx = mouseX - centerX;
+    const dy = mouseY - centerY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
 
-		const dx = mouseX - centerX;
-		const dy = mouseY - centerY;
-		const distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance < 30) {
+        hoveredIndex = 0;
+        return;
+    }
 
-		if (distance < 30) {
-			hoveredIndex = -1;
-			return;
-		}
+    let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    angle = (angle + 360) % 360;
 
-		let angle = Math.atan2(dy, dx) * (180 / Math.PI);
-		angle = (angle + 360) % 360;
+    const segmentAngle = 360 / (menuItems.length - 1);
+    const startAngle = -90 - segmentAngle / 2 + segmentAngle; // Added + segmentAngle
+    const adjustedAngle = (angle - startAngle + 360) % 360;
+    const index = Math.floor(adjustedAngle / segmentAngle) % (menuItems.length - 1);
 
-		const segmentAngle = 360 / (menuItems.length - 1);
-		const startAngle = -90 - segmentAngle / 2;
-		const adjustedAngle = (angle - startAngle + 360) % 360;
-		const index = (Math.floor(adjustedAngle / segmentAngle) % (menuItems.length - 1)) - 1;
-
-		hoveredIndex = index + 1;
-		// console.log(hoveredIndex);
-	}
+    hoveredIndex = index + 1;
+}
 
 	function leavePoint() {
 		if (isOpen && hoveredIndex >= 0) {
