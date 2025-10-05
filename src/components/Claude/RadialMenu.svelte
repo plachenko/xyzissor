@@ -24,12 +24,12 @@
 
 	onMount(() => {
 		menuItems.splice(0, 0, { label: '', icon: '', color: '' });
-		$inspect(menuItems);
 	});
 
 	function startPoint(e) {
 		// e.preventDefault();
 		pointDown = true;
+		console.log('uh');
 		if (isOpen) return;
 		const rect = containerRef.getBoundingClientRect();
 		position = {
@@ -75,14 +75,15 @@
 			selectedItem = menuItems[hoveredIndex].label;
 			setTimeout(() => (selectedItem = null), 2000);
 		}
-		isOpen = false;
 		hoveredIndex = -1;
+		isOpen = false;
+		pointDown = false;
 	}
 
 	$effect(() => {
 		if (pointPos) {
 			if (pointDown) {
-				// movePoint(pointPos);
+				movePoint(pointPos);
 			} else {
 				startPoint(pointPos);
 			}
@@ -123,9 +124,7 @@
 	}
 </script>
 
-<div
-	class="w-full h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center"
->
+<div class="absolute w-full h-screen flex items-center justify-center pointer-events-none">
 	<div
 		bind:this={containerRef}
 		class="relative w-full h-full cursor-pointer select-none"
@@ -133,16 +132,15 @@
 		tabindex="0"
 	>
 		<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+			<!--
 			<div class="text-center text-white">
-				<h1 class="text-4xl font-bold mb-4">Radial Menu Demo</h1>
-				<p class="text-xl text-gray-300">Hold down anywhere to open the menu</p>
-				<p class="text-sm text-gray-400 mt-2">Move while holding to select an item</p>
 				{#if selectedItem}
 					<div class="mt-6 p-4 bg-green-500 rounded-lg text-white font-semibold animate-pulse">
 						Selected: {selectedItem}
 					</div>
 				{/if}
 			</div>
+      -->
 		</div>
 
 		{#if isOpen}

@@ -23,7 +23,7 @@
 	let x = $state(0);
 	let y = $state(0);
 	let touchEl = $state(null);
-	let { resetControls, scene, setPointerLock, pointerposArr } = $props();
+	let { resetControls, scene, setPointerLock, setPointerDn } = $props();
 	let touchIdx = $state(0);
 
 	let mirrorMode = $state(false);
@@ -91,14 +91,16 @@
 		dy = pointerArr?.length >= 2 ? pointerArr[1][1].y - pointerArr[0][1].y : 0;
 		distance = Math.sqrt(dx * dx + dy * dy);
 
-		if (pointerArr) {
-			pointerposArr = [{ x: pointerArr[0]?.x, y: pointerArr[0]?.y }];
+		if (pointerArr?.length) {
+			setPointerDn(pointerArr[0][1]);
+		} else {
+			setPointerDn(null);
 		}
 	});
 
 	const handlePointerDown = (e) => {
 		// Right click (mouse) -> persistent static point
-		//
+
 		//e.preventDefault();
 		if (e.button === 0 && e.pointerType === 'mouse' && e.shiftKey) {
 			pointers.set(`mouse-${Date.now()}`, {

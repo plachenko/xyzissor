@@ -1,332 +1,47 @@
 <script>
-	import * as THREE from 'three';
 	import { onMount } from 'svelte';
-	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-	import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-	import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-	import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
-	import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-	import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
-
-	import RadialMenu from '../components/Claude/RadialMenu.svelte';
 
 	import SceneList from '../components/SceneList.svelte';
 	import PointerTracker from '../components/ChatGPT/PointerTracker.svelte';
-
 	import Pane from '../components/Claude/Pane.svelte';
+	import RadialMenu from '../components/Claude/RadialMenu.svelte';
+	import View3D from '../components/View3D.svelte';
 
-	let scene = $state(null);
-	const cursorMesh = $state(new THREE.CircleGeometry(0.01));
-	let cursorMat = $state(null);
-	let cursor = $state(null);
-	let pointerposArr = $state([]);
-
+	let pointerDn = $state(null);
 	let selectedIdx = $state(null);
-
-	let outlinePass = $state(null);
-
-	let geoParams = $state({
-		x: 0.2,
-		y: 0.2,
-		z: 0.2
-	});
-
-	let camLock = $state(false);
-	let composer = $state(null);
-
-	let geoParamArray = $state([{ ...geoParams }, { ...geoParams }]);
-
-	function switchGeoMode(_mode) {
-		geoMode = _mode;
-	}
-
-	function setPointerLock(locked) {
-		console.log(locked);
-		/*
-		if (locked) {
-			controls = null;
-		} else {
-			controls = new OrbitControls(camera, renderer.domElement);
-		}
-    */
-	}
+	let setPointerLock = $state(false);
+	let scene = $state(null);
 
 	$effect(() => {
-		// console.log(camLock);
-		//
-		console.log(pointerposArr);
-		if (pointerposArr.length) {
-			// pointPos = pointerposArr[0];
-		} else {
-			// pointPos = null;
-		}
-
-		if (camLock && camera) {
-			camera.position.set(
-				geoParamArray[geoMode].x,
-				geoParamArray[geoMode].y,
-				geoParamArray[geoMode].z
-			);
-			camera.lookAt(cursor);
-		}
-		//console.log('changeMode');
-		// geoParamArray[geoMode] = {...geoParams};
-		/*
-
-
-    */
-		if (cursor) {
-			if (geoMode == 0) {
-				cursor.position.x = geoParamArray[0].x;
-				cursor.position.y = geoParamArray[0].y;
-				cursor.position.z = geoParamArray[0].z;
-			}
-
-			if (geoMode == 1 && selectedIdx) {
-				sceneObj.geometry[selectedIdx - 1].meshInfo.mesh.scale.set(
-					geoParamArray[1].x,
-					geoParamArray[1].y,
-					geoParamArray[1].z
-				);
-			}
-		}
+		$inspect(pointerDn);
 	});
 
 	let controls = $state(null);
-	let pointPos = $state({ x: 100, y: 100 });
+	let pointPos = $state(null);
 
 	let pointerCapture = $state(false);
 
-	let sceneEl = $state(null);
-	let pointerEl = $state(null);
-
-	let geoMode = $state(0);
-	let geoControls = $state(['cursor', 'geometry']);
-
-	const sceneObj = $state({
-		title: 'untitled',
-		geometry: []
-	});
-
-	function resetGeoParams() {
-		console.log('huh');
-		geoParams = {
-			x: 0,
-			y: 0,
-			z: 0
-		};
-		geoParamArray[geoMode] = { ...geoParams };
-	}
-
-	function addObj(type = 'BoxGeometry') {
-		const meshInfo = {
-			mesh: null,
-			geo: null,
-			mat: null
-		};
-
-		switch (type) {
-			case 'BoxGeometry':
-				meshInfo.geo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-				meshInfo.mat = new THREE.MeshNormalMaterial();
-				meshInfo.mesh = new THREE.Mesh(meshInfo.geo, meshInfo.mat);
-				break;
+	function setPointerDn(pos) {
+		if (!pos) {
+			pointPos = null;
+			return;
 		}
 
-		return meshInfo;
-	}
-
-	function remFunc(idx) {
-		// if (!idx) return;
-		let curObj = sceneObj.geometry[idx];
-		sceneObj.geometry.splice(idx, 1);
-
-		scene.remove(curObj.meshInfo.mesh);
-	}
-
-	function addFunc() {
-		const geometry = new THREE.BoxGeometry(
-			geoParamArray[1].x,
-			geoParamArray[1].y,
-			geoParamArray[1].z
-		);
-		const mat = new THREE.MeshNormalMaterial();
-		const mesh = new THREE.Mesh(geometry, mat);
-
-		scene.add(mesh);
-
-		outlinePass.selectedObjects = [mesh];
-
-		let _obj = {
-			type: 'BoxGeometry',
-			size: new THREE.Vector3(0.2, 0.2, 0.2),
-			pos: new THREE.Vector3(...cursor.position)
+		pointPos = {
+			y: ~~pos.y - 1,
+			x: ~~pos.x - 1
 		};
-
-		mesh.position.set(...cursor.position);
-
-		// _obj.meshInfo = addObj([_obj.type]);
-		_obj.meshInfo = {
-			geo: geometry,
-			mat: mat,
-			mesh: mesh
-		};
-
-		sceneObj.geometry.push({
-			..._obj
-		});
-	}
-
-	const opts = $state([
-		{
-			name: 'add',
-			func: () => {
-				addFunc();
-			}
-		},
-		{
-			name: 'del',
-			func: () => {}
-		},
-		{
-			name: 'clr',
-			func: () => {
-				clearAll();
-			}
-		}
-	]);
-
-	const cursorObj = {
-		pos: new THREE.Vector3(0, 0, 0)
-	};
-
-	function clickHndl(obj, evt) {
-		obj.func();
-	}
-	let camera = $state(null);
-
-	function clearAll() {
-		sceneObj.geometry.forEach((e) => {
-			if (e?.meshInfo) return;
-			/*
-			scene.remove(e.meshInfo.mesh);
-			e.meshInfo.geometry.dispose();
-			e.meshInfo.material.dispose();
-      */
-		});
-	}
-
-	/*
-  addSceneListObj(){
-    addObj();
-
-  }
-  */
-
-	function addSceneObjs(list) {
-		if (!list?.length) return;
-
-		list.forEach((itm) => {
-			let mesh = addObj(itm.type).mesh;
-			scene.add(mesh);
-		});
-	}
-
-	function resetControls() {
-		controls.reset();
-	}
-
-	onMount(() => {
-		const width = window.innerWidth;
-		const height = window.innerHeight;
-
-		camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 10);
-		camera.position.z = 0.5;
-		camera.position.y = 0.5;
-		camera.position.x = 0.5;
-		camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-		scene = new THREE.Scene();
-
-		const size = 10;
-		const divisions = 10;
-		const gridHelperX = new THREE.GridHelper(size, divisions, 0xff0000);
-		scene.add(gridHelperX);
-
-		/*
-		const gridHelperY = new THREE.GridHelper(size, divisions, 0x00ff00);
-		gridHelperY.rotation.x = Math.PI / 2;
-		scene.add(gridHelperY);
-
-		const gridHelperZ = new THREE.GridHelper(size, divisions, 0x0000ff);
-		gridHelperZ.rotation.z = Math.PI / 2;
-		scene.add(gridHelperZ);
-    */
-
-		cursorMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-		// cursorMat.depthTest = false;
-		// cursorMat.depthWrite = false;
-		// cursorMat.renderOrder = 9;
-
-		cursor = new THREE.Mesh(cursorMesh, cursorMat);
-		scene.add(cursor);
-		// cursor.material.depthFunc = THREE.AlwaysDepth;
-
-		const renderer = new THREE.WebGLRenderer({ antialias: true });
-		renderer.setSize(width, height);
-		renderer.setAnimationLoop(animate);
-		sceneEl.appendChild(renderer.domElement);
-
-		composer = new EffectComposer(renderer);
-
-		const renderPass = new RenderPass(scene, camera);
-		composer.addPass(renderPass);
-
-		outlinePass = new OutlinePass(
-			new THREE.Vector2(window.innerWidth, window.innerHeight), // Resolution
-			scene,
-			camera
-		);
-		composer.addPass(outlinePass);
-
-		controls = new OrbitControls(camera, renderer.domElement);
-		controls.update();
-
-		window.addEventListener('resize', () => {
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
-
-			renderer.setSize(window.innerWidth, window.innerHeight);
-		});
-
-		// animation
-
-		function animate(time) {
-			// controls.update();
-
-			cursor.lookAt(camera.position);
-
-			renderer.render(scene, camera);
-			composer.render();
-		}
-	});
-
-	function setPointerCapture(state = false) {
-		pointerCapture = state;
 	}
 </script>
 
 <RadialMenu {pointPos} />
 <div class=" absolute w-full h-full pointer-events-none">
 	<!-- Object List -->
-	<!--
- -->
 
-	<div class="absolute left-0 top-0 pointer-events-auto w-full h-full" bind:this={sceneEl}></div>
-	<Pane {sceneEl} />
+	<!-- <div class="absolute left-0 top-0 pointer-events-auto w-full h-full" bind:this={sceneEl}></div> -->
+	<!-- <Pane {sceneEl} /> -->
 
-	<PointerTracker {pointerposArr} {setPointerLock} {scene} {resetControls} />
+	<PointerTracker {setPointerDn} {setPointerLock} />
 	<!--
 	<div
 		class={`${pointerCapture ? 'pointer-events-auto visible' : 'pointer-events-none invisible'} bg-red-400 w-full h-full absolute left-0 top-0 z-[9999]`}
