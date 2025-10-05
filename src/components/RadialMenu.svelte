@@ -36,7 +36,6 @@
 
 	$effect(() => {
 		if (showMenu) {
-			console.log('menushow');
 			menuTicker = setTickInterval(() => {
 				if (curMenuTick <= options.length) {
 					console.log('ticking');

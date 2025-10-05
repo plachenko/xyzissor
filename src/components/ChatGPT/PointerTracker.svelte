@@ -20,12 +20,10 @@
 
 	let radialEl = $state(null);
 
-
-
 	let x = $state(0);
 	let y = $state(0);
 	let touchEl = $state(null);
-	let { resetControls, scene, setPointerLock } = $props();
+	let { resetControls, scene, setPointerLock, pointerposArr } = $props();
 	let touchIdx = $state(0);
 
 	let mirrorMode = $state(false);
@@ -45,7 +43,6 @@
 	const colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan', 'magenta'];
 
 	const lineObj = new LineBetween(p1, p2);
-
 
 	onMount(() => {
 		// scene.add(lineObj);
@@ -82,7 +79,6 @@
 	let dy = $state(0);
 	let distance = $state(0);
 
-	
 	/*
 	let dx = $derived(pointers?.size >= 2 ? pointerArr[1][1].x - pointerArr[0][1].x : 0);
 	let dy = $derived(pointers?.size >= 2 ? pointerArr[1][1].y - pointerArr[0][1].y : 0);
@@ -94,6 +90,10 @@
 		dx = pointerArr?.length >= 2 ? pointerArr[1][1].x - pointerArr[0][1].x : 0;
 		dy = pointerArr?.length >= 2 ? pointerArr[1][1].y - pointerArr[0][1].y : 0;
 		distance = Math.sqrt(dx * dx + dy * dy);
+
+		if (pointerArr) {
+			pointerposArr = [{ x: pointerArr[0]?.x, y: pointerArr[0]?.y }];
+		}
 	});
 
 	const handlePointerDown = (e) => {
@@ -215,7 +215,7 @@
 			style={`
 			left: ${pointerArr[0][1].x - 68}px; 
 			top: ${pointerArr[0][1].y - 68}px;
-			`}	
+			`}
 		>
 			<RadialProgress {tickInt} {ticks} />
 		</div>
@@ -228,8 +228,8 @@
 			class={`size-${distance < 60 ? '5' : '22'} dot flex justify-center items-center`}
 			style={`
 			background-color: ${pointer[1].color}; 
-			left: ${~~pointer[1].x}px; 
-			top: ${~~pointer[1].y}px;
+			left: ${~~pointer[1].x + 6}px; 
+			top: ${~~pointer[1].y + 6}px;
 			`}
 		>
 			<div

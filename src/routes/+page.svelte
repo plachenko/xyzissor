@@ -20,6 +20,7 @@
 	const cursorMesh = $state(new THREE.CircleGeometry(0.01));
 	let cursorMat = $state(null);
 	let cursor = $state(null);
+	let pointerposArr = $state([]);
 
 	let selectedIdx = $state(null);
 
@@ -53,6 +54,13 @@
 
 	$effect(() => {
 		// console.log(camLock);
+		//
+		console.log(pointerposArr);
+		if (pointerposArr.length) {
+			// pointPos = pointerposArr[0];
+		} else {
+			// pointPos = null;
+		}
 
 		if (camLock && camera) {
 			camera.position.set(
@@ -86,6 +94,7 @@
 	});
 
 	let controls = $state(null);
+	let pointPos = $state({ x: 100, y: 100 });
 
 	let pointerCapture = $state(false);
 
@@ -245,6 +254,7 @@
 		const gridHelperX = new THREE.GridHelper(size, divisions, 0xff0000);
 		scene.add(gridHelperX);
 
+		/*
 		const gridHelperY = new THREE.GridHelper(size, divisions, 0x00ff00);
 		gridHelperY.rotation.x = Math.PI / 2;
 		scene.add(gridHelperY);
@@ -252,6 +262,7 @@
 		const gridHelperZ = new THREE.GridHelper(size, divisions, 0x0000ff);
 		gridHelperZ.rotation.z = Math.PI / 2;
 		scene.add(gridHelperZ);
+    */
 
 		cursorMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
 		// cursorMat.depthTest = false;
@@ -306,16 +317,17 @@
 	}
 </script>
 
-	<RadialMenu />
+<RadialMenu {pointPos} />
 <div class=" absolute w-full h-full pointer-events-none">
 	<!-- Object List -->
-	 <!--
-	<Pane {sceneEl}/>
+	<!--
  -->
-	
+
 	<div class="absolute left-0 top-0 pointer-events-auto w-full h-full" bind:this={sceneEl}></div>
-	
-	<PointerTracker {setPointerLock} {scene} {resetControls} />
+	<Pane {sceneEl} />
+
+	<PointerTracker {pointerposArr} {setPointerLock} {scene} {resetControls} />
+	<!--
 	<div
 		class={`${pointerCapture ? 'pointer-events-auto visible' : 'pointer-events-none invisible'} bg-red-400 w-full h-full absolute left-0 top-0 z-[9999]`}
 		onlostpointercapture={() => {
@@ -359,4 +371,5 @@
 			</div>
 		</div>
 	</div>
+  -->
 </div>
